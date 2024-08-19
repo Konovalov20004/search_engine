@@ -54,11 +54,11 @@ std::vector<std::vector<RelativeIndex>> SearchServer::search (const std::vector<
 					ri.rank = i->first / max_relative;
 					vec_relative_index.push_back(ri);
 				}
+				result.push_back(vec_relative_index);
 			}
 			else {
-				vec_relative_index.push_back(ri);
+				result.push_back(vec_relative_index);
 			}
-			result.push_back(vec_relative_index);
 			mutex.unlock();
 		});
 
