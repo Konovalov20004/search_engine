@@ -30,7 +30,6 @@ private:
     std::ofstream file_answers;
     json config_file;
     json request_file;
-    json answers_file;
 };
 
 #endif // CONVETRERJSON_H

@@ -1,9 +1,9 @@
-#include <iostream>
-#include <vector>
-#include <string>
 #ifndef INVERTEDINDEX_H
 #define INVERTEDINDEX_H
 
+#include <iostream>
+#include <vector>
+#include <string>
 #include <nlohmann/json.hpp>
 #include <map>
 #include <thread>

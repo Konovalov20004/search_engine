@@ -1,8 +1,9 @@
-{"config": {
-"name": "SkillboxSearchEngine",
-"version": "0.1",
-"max_responses": 5
-},
+{
+  "config": {
+    "name": "SkillboxSearchEngine",
+    "version": "0.1",
+    "max_responses": 3
+  },
   "files": [
     "/resources/file0.txt",
     "/resources/file1.txt",
@@ -22,9 +23,7 @@
     "/resources/file15.txt",
     "/resources/file16.txt",
     "/resources/file17.txt",
-    "/resources/file18.txt",
-    "/resources/file19.txt",
-    "/resources/file20.txt",
-    "/resources/file21.txt"
-  ] 
+    "/resources/file18.txt"
+  ]
 }
+

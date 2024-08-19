@@ -5,15 +5,20 @@ std::vector<std::vector<RelativeIndex>> SearchServer::search (const std::vector<
 	std::vector<std::vector<RelativeIndex>> result;
 	std::mutex mutex;
 
-	InvertedIndex* index = &_index;
+	InvertedIndex* index = _index;
 
 	std::vector<std::thread*> threads;
 	std::thread* thread;
+	int id_thread{0};
 
 	for (auto& queries : queries_input) {
-		thread = new std::thread([&result, &index, &mutex, &queries]() {
-			mutex.lock();
+		
+		id_thread++;
+		thread = new std::thread([&result, &index, &mutex, &queries, &id_thread]() {
 			
+			int my_id = id_thread;
+			
+			mutex.lock();
 			std::map<size_t, size_t> tmp_map;
 			std::istringstream repeat(queries);
 			std::unordered_set<std::string> no_repeat;
@@ -36,36 +41,38 @@ std::vector<std::vector<RelativeIndex>> SearchServer::search (const std::vector<
 				}
 			}
 
-			std::multimap<float, size_t> sorted_map;
-			for (auto& el : tmp_map) {
-				sorted_map.emplace(el.second, el.first);
-			}
-
+			RelativeIndex ri{};
 			std::vector<RelativeIndex> vec_relative_index{};
-			if (tmp_map.empty())
-				result.push_back(vec_relative_index);
-			else {
-				RelativeIndex ri{};
+			if (!tmp_map.empty()) {
+				std::multimap<float, size_t> sorted_map;
+				for (auto& el : tmp_map) {
+					sorted_map.emplace(el.second, el.first);
+				}
 				int max_relative = sorted_map.rbegin()->first;
 				for (auto i = sorted_map.rbegin(); i != sorted_map.rend(); i++) {
 					ri.doc_id = i->second;
 					ri.rank = i->first / max_relative;
 					vec_relative_index.push_back(ri);
 				}
-				result.push_back(vec_relative_index);
 			}
+			else {
+				vec_relative_index.push_back(ri);
+			}
+			result.push_back(vec_relative_index);
 			mutex.unlock();
-
 		});
-		//std::cout << thread->get_id() << "\t Push " << queries << std::endl;
-		threads.push_back(thread);
+
+		std::cout << id_thread << ". request\t\"" << queries << "\"" << std::endl;
+ 		threads.push_back(thread);
+
 	}
 
 	for (auto el : threads) {
 		if (el->joinable()) {
 			el->join();
+			delete el;
 		}
 	}
-	
+
 	return result;
 }

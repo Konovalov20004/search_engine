@@ -12,9 +12,9 @@ ConverterJSON::ConverterJSON(){
     file_request.open(file_patch + "/search_engine/json/requests.json");
     if(file_config.is_open() && file_request.is_open()) {
         config_file = json::parse(file_config);
-        request_file = json::parse(file_request);
-    } else
-        throw "Error. Config file not found";
+    }
+    else
+        std::cout << "Error. Configs file not found" << std::endl;
     file_config.close();
     file_request.close();
     std::cout << config_file["config"]["name"] << std::endl;
@@ -23,9 +23,9 @@ ConverterJSON::ConverterJSON(){
 std::vector<std::string> ConverterJSON::GetTextDocument(){
     std::vector<std::string> text_document;
 
-
-    if (!text_document.empty())
-        return text_document;
+    config_file.clear();
+    file_config.open(file_patch + "/search_engine/json/config.json");
+    config_file = json::parse(file_config);
 
     for (auto &file : config_file["files"]){
         std::fstream openFile;
@@ -35,56 +35,71 @@ std::vector<std::string> ConverterJSON::GetTextDocument(){
             openFile.get(text,sizeof(text));
             text_document.push_back((std::string)text);
         } else
-            throw "file not found";
+            std::cout << "file not found" << std::endl;
         openFile.close();
     }
+
+    file_config.close();
     return text_document;
 }
 
 std::vector<std::string> ConverterJSON::GetRequest() {
+    file_request.open(file_patch + "/search_engine/json/requests.json");
+    request_file = json::parse(file_request);
     std::vector<std::string> request;
     for(auto &requestWords :request_file["requests"]) {
         request.push_back((std::string)requestWords);
     }
+    file_request.close();
     return request;
 }
 
 int ConverterJSON::ResponseLimit(){
-    return config_file["config"]["max_responses"];
+    int response_max;
+    config_file["config"]["max_responses"] != config_file["config"]["max_responses"].empty() ?
+        response_max = config_file["config"]["max_responses"] : response_max = 5;
+    return response_max;
 }
 
 void ConverterJSON::putAnswer(std::vector<std::vector<RelativeIndex>> answer) {
     Index index;
-    int response_max{};
-    config_file["config"]["max_responses"] != config_file["config"]["max_responses"].empty() ?
-       response_max = config_file["config"]["max_responses"] : response_max = 5;
+    json answers_file;
 
     file_answers.open(file_patch + "/search_engine/json/answers.json");
+    //file_answers.clear();
 
     for (auto& request : answer) {
 
+        int response_max = ResponseLimit();
+//!!!
         if (request.size() == 1) {
             answers_file["answers"]["request" + index.getIndex(1)] += {"result", true};
             answers_file["answers"]["request" + index.getIndex(0)] += {
                 {"docid", request[0].doc_id}, { "rank", request[0].rank }};
-        } else if (request.empty()) {
+        }
+        else if (request.empty()) {
             answers_file["answers"]["request" + index.getIndex(1)]["result"] = false;
         }
         else {
-            answers_file["answers"]["request" + index.getIndex(1)]["result"] += true;
+            answers_file["answers"]["request" + index.getIndex(1)]["result"] = true;
             for (auto& line : request) {
                 answers_file["answers"]["request" + index.getIndex(0)]["relevance"] += {
                     {"docid", line.doc_id}, { "rank", line.rank }};
-            
-                if (!response_max--)
+
+                if (!--response_max)
                     break;
             }
         }
     }
-    if (file_answers.is_open())
+    if (file_answers.is_open()) {
         file_answers << answers_file;
-    else
+        std::cout << "Answer done" << std::endl;
+    }
+    else {
         std::cout << "error create file" << std::endl;
+    }
+
+    file_answers.close();
 }
 
 Index::Index() {
