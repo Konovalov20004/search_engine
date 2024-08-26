@@ -5,11 +5,8 @@
 using json = nlohmann::json;
 
 ConverterJSON::ConverterJSON(){
-    std::source_location loc = std::source_location::current();
-    file_patch = loc.file_name();
-    file_patch = file_patch.substr(0, file_patch.rfind("search_engine"));
-    file_config.open(file_patch + "/search_engine/json/config.json");
-    file_request.open(file_patch + "/search_engine/json/requests.json");
+    file_config.open("json/config.json");
+    file_request.open("json/requests.json");
     if(file_config.is_open() && file_request.is_open()) {
         config_file = json::parse(file_config);
     }
@@ -24,12 +21,12 @@ std::vector<std::string> ConverterJSON::GetTextDocument(){
     std::vector<std::string> text_document;
 
     config_file.clear();
-    file_config.open(file_patch + "/search_engine/json/config.json");
+    file_config.open("json/config.json");
     config_file = json::parse(file_config);
 
     for (auto &file : config_file["files"]){
         std::fstream openFile;
-        openFile.open(file_patch + "/search_engine" + (std::string)file);
+        openFile.open((std::string)file);
         if(openFile.is_open()){
             char text[1000000];
             openFile.get(text,sizeof(text));
@@ -44,7 +41,7 @@ std::vector<std::string> ConverterJSON::GetTextDocument(){
 }
 
 std::vector<std::string> ConverterJSON::GetRequest() {
-    file_request.open(file_patch + "/search_engine/json/requests.json");
+    file_request.open("json/requests.json");
     request_file = json::parse(file_request);
     std::vector<std::string> request;
     for(auto &requestWords :request_file["requests"]) {
@@ -65,7 +62,7 @@ void ConverterJSON::putAnswer(std::vector<std::vector<RelativeIndex>> answer) {
     Index index;
     json answers_file;
 
-    file_answers.open(file_patch + "/search_engine/json/answers.json");
+    file_answers.open("json/answers.json");
     //file_answers.clear();
 
     for (auto& request : answer) {
