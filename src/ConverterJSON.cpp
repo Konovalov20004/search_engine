@@ -63,12 +63,12 @@ void ConverterJSON::putAnswer(std::vector<std::vector<RelativeIndex>> answer) {
     json answers_file;
 
     file_answers.open("json/answers.json");
-    //file_answers.clear();
+    file_answers.clear();
 
     for (auto& request : answer) {
 
         int response_max = ResponseLimit();
-//!!!
+
         if (request.size() == 1) {
             answers_file["answers"]["request" + index.getIndex(1)] += {"result", true};
             answers_file["answers"]["request" + index.getIndex(0)] += {

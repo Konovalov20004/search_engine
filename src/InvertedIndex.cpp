@@ -1,7 +1,7 @@
 #include "InvertedIndex.h"
 
 InvertedIndex::InvertedIndex(){
-    //freq_dictionary;
+    freq_dictionary;
 }
 
 void InvertedIndex::UpdateDocumentBase(std::vector<std::string> docs)  {
